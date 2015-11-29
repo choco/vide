@@ -17,10 +17,17 @@
 "   to fix this (it may cause other issues to arise
 "   https://github.com/SirVer/ultisnips/issues/586#issuecomment-148914335)
 
+let g:ycm_key_list_select_completion = ['<C-n>']
+let g:ycm_key_list_previous_completion = ['<C-p>']
+let g:UltiSnipsJumpForwardTrigger  = '\<Nop>'
+let g:UltiSnipsJumpBackwardTrigger = '\<Nop>'
+let g:UltiSnipsExpandTrigger       = '\<Nop>'
+let g:UltiSnipsUsePythonVersion = 2
+
 if !exists('g:vide_move_forwards')
   let g:vide_move_forwards  = "<tab>"
 endif
-if !exists('g:vide_move_forwards')
+if !exists('g:vide_move_backwards')
   let g:vide_move_backwards  = "<s-tab>"
 endif
 if !exists('g:vide_jump_chars')
@@ -33,26 +40,16 @@ let s:completedone_available_snippet = 0
 let s:completedone_snippet = ""
 
 " Escaped keys {{{
-exec 'let s:escaped_vide_move_forwards = "\'.s:vide_move_forwards.'"'
-exec 'let s:escaped_vide_move_backwards = "\'.s:vide_move_backwards.'"'
+exec 'let s:escaped_vide_move_forwards = "\'.g:vide_move_forwards.'"'
+exec 'let s:escaped_vide_move_backwards = "\'.g:vide_move_backwards.'"'
 " }}}
 
 " Hack: don't pop completion pop-up after confirming result {{{
 augroup modify_ctrl_y_trigger_ycm
   autocmd!
-  au BufEnter * exec "inoremap <expr><silent> <M-NP> s:DisablePopup()"
-  au BufEnter * exec "inoremap <expr><silent> <M-PN> s:EnablePopup()"
+  au BufEnter * exec "inoremap <expr><silent> <M-NP> vide#DisablePopup()"
+  au BufEnter * exec "inoremap <expr><silent> <M-PN> vide#EnablePopup()"
 augroup END
-
-function s:DisablePopup()
-  let g:ycm_auto_trigger = 0
-  return ""
-endfun
-
-function s:EnablePopup()
-  let g:ycm_auto_trigger = 1
-  return ""
-endfun
 " }}}
 
 " create a snippet with Ultisnips for completed function names
@@ -159,7 +156,7 @@ function s:ExpandSnippetOrReturn()
       return snippet
     else
       let s:available_on_the_fly_snippet = 0
-      let s:temporary_on_the_fly_snippet = GenerateSnippet(0)
+      let s:temporary_on_the_fly_snippet = s:GenerateSnippet(0)
       if len(s:temporary_on_the_fly_snippet)>1
         let s:available_on_the_fly_snippet = 1
       endif
@@ -167,7 +164,7 @@ function s:ExpandSnippetOrReturn()
       call feedkeys("\<C-Y>")
       call feedkeys("\<M-PN>")
       if s:available_on_the_fly_snippet > 0
-        call UltiSnips#Anon(g:temporary_on_the_fly_snippet)
+        call UltiSnips#Anon(s:temporary_on_the_fly_snippet)
         let s:available_on_the_fly_snippet = 0
         let s:completedone_available_snippet = 0
       endif
@@ -175,7 +172,7 @@ function s:ExpandSnippetOrReturn()
     endif
   else
     if s:completedone_available_snippet > 0
-      call UltiSnips#Anon(g:completedone_snippet)
+      call UltiSnips#Anon(s:completedone_snippet)
       let s:completedone_available_snippet = 0
       let s:available_on_the_fly_snippet = 0
       return ""
@@ -255,7 +252,7 @@ exec 'snoremap <silent> ' . vide_move_backwards . ' <Esc>:call UltiSnips#JumpBac
 
 function s:GenerateCompleteDoneSnippet() " {{{
   let s:completedone_available_snippet = 0
-  let s:completedone_snippet = GenerateSnippet(1)
+  let s:completedone_snippet = s:GenerateSnippet(1)
   if len(s:completedone_snippet) > 1
     let s:completedone_available_snippet = 1
     augroup invalidate_completedone_snippet
