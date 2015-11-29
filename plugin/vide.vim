@@ -1,22 +1,3 @@
-" YouCompleteMe & UltiSnips interoperability configuration {{{
-" NOTE: REALLY HACKY, PROBABLY WRONG, BUT SEEMS TO WORK WELL
-" Current_Setup:
-" - move between completion menu results using g:ultisnips_ycm_move_forwards
-"   and g:ultisnips_ycm_move_backwards
-" - confirm result by either continuing to type or <CR>
-" - if confirmed with <CR> and auto completion is a snippet it's expanded
-"   (note: functions defined as some_func(arg1, arg2, ...) are converted to
-"   snippets and therefore expanded as well)
-" - when inside snippet move with the same keys between placeholders or by
-"   completing a result with <CR>
-" - inside a snippet movement inside the completion menu is prioritized
-"   over the movement between the placeholders
-" Limitations:
-" - if semantic completion is triggered inside a snippets, placeholders are
-"   removed, apply this patch https://gist.github.com/cHoco/27549c8bc5119eda7d3b
-"   to fix this (it may cause other issues to arise
-"   https://github.com/SirVer/ultisnips/issues/586#issuecomment-148914335)
-
 let g:ycm_key_list_select_completion = ['<C-n>']
 let g:ycm_key_list_previous_completion = ['<C-p>']
 let g:UltiSnipsJumpForwardTrigger  = '\<Nop>'
