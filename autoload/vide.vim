@@ -65,7 +65,7 @@ function vide#ExpandSnippetOrReturn() " {{{
       return snippet
     else
       let s:available_on_the_fly_snippet = 0
-      let s:temporary_on_the_fly_snippet = vide#GenerateSnippet(0)
+      let s:temporary_on_the_fly_snippet = s:GenerateSnippet(0)
       if len(s:temporary_on_the_fly_snippet)>1
         let s:available_on_the_fly_snippet = 1
       endif
@@ -96,7 +96,7 @@ endfunction
 " create a snippet with Ultisnips for completed function names
 " NOTE: only works with function declaration like some_fun(arg1, args2, ...)
 "       and objc functions
-function vide#GenerateClikeFuncSnippet(base, with_starting_bracket, with_ending_bracket) " {{{
+function s:GenerateClikeFuncSnippet(base, with_starting_bracket, with_ending_bracket) " {{{
   let base = a:base
   let startIdx = match(base, "(")
   let endIdx = match(base, ")")
@@ -130,7 +130,7 @@ function vide#GenerateClikeFuncSnippet(base, with_starting_bracket, with_ending_
 endfunction
 " }}}
 
-function vide#GenerateObjCSnippet() " {{{
+function s:GenerateObjCSnippet() " {{{
   let abbr = v:completed_item.abbr
   let hasArguments = match(abbr, ":")
   if hasArguments > 0
@@ -158,7 +158,7 @@ function vide#GenerateObjCSnippet() " {{{
 endfunction
 " }}}
 
-function vide#GenerateSnippet(from_completeDone) "{{{
+function s:GenerateSnippet(from_completeDone) "{{{
   if !exists('v:completed_item') || empty(v:completed_item)
     return ""
   endif
@@ -174,22 +174,22 @@ function vide#GenerateSnippet(from_completeDone) "{{{
   endif
 
   if &filetype == 'objc'
-    return vide#GenerateObjCSnippet()
+    return s:GenerateObjCSnippet()
   elseif &filetype == 'cs'
-    return vide#GenerateClikeFuncSnippet(v:completed_item.menu, 0, 1)
+    return s:GenerateClikeFuncSnippet(v:completed_item.menu, 0, 1)
   elseif &filetype == 'python'
-    return vide#GenerateClikeFuncSnippet(v:completed_item.info, 1, 1)
+    return s:GenerateClikeFuncSnippet(v:completed_item.info, 1, 1)
   elseif &filetype == 'go'
-    return vide#GenerateClikeFuncSnippet(v:completed_item.menu, 1, 1)
+    return s:GenerateClikeFuncSnippet(v:completed_item.menu, 1, 1)
   else
-    return a:from_completeDone ? vide#GenerateClikeFuncSnippet(v:completed_item.abbr, 0, 0) : vide#GenerateClikeFuncSnippet(v:completed_item.abbr, 1, 1)
+    return a:from_completeDone ? s:GenerateClikeFuncSnippet(v:completed_item.abbr, 0, 0) : s:GenerateClikeFuncSnippet(v:completed_item.abbr, 1, 1)
   endif
 
 endfunction
 " }}}
 
 " helper functions to invalidate compledone snippet {{{
-function vide#InvalidateSnippet()
+function s:InvalidateSnippet()
   let s:completedone_available_snippet = 0
   let s:invalidate_snippet_counter = 0
   try
@@ -197,9 +197,9 @@ function vide#InvalidateSnippet()
   catch /^Vim\%((\a\+)\)\=:E367/
   endtry
 endfunction
-function vide#CheckInvalidateSnippet()
+function s:CheckInvalidateSnippet()
   if s:invalidate_snippet_counter > 0
-    call vide#InvalidateSnippet()
+    call s:InvalidateSnippet()
   else
     let s:invalidate_snippet_counter = s:invalidate_snippet_counter + 1
   endif
@@ -208,13 +208,13 @@ endfunction
 
 function vide#GenerateCompleteDoneSnippet() " {{{
   let s:completedone_available_snippet = 0
-  let s:completedone_snippet = vide#GenerateSnippet(1)
+  let s:completedone_snippet = s:GenerateSnippet(1)
   if len(s:completedone_snippet) > 1
     let s:completedone_available_snippet = 1
     augroup invalidate_completedone_snippet
       autocmd!
-      autocmd CursorMovedI * call vide#CheckInvalidateSnippet()
-      autocmd InsertLeave * call vide#InvalidateSnippet()
+      autocmd CursorMovedI * call s:CheckInvalidateSnippet()
+      autocmd InsertLeave * call s:InvalidateSnippet()
     augroup END
   endif
 endfunction
