@@ -31,6 +31,17 @@ function! vide#EnablePopup()
   return ""
 endfunction
 
+function! s:CharInJumpChars(position) " {{{
+  let c_col = col('.')-1
+  let n_char = getline('.')[c_col+a:position]
+  for jump_c in g:vide_jump_chars
+    if n_char == jump_c
+      return 1
+    endif
+  endfor
+endfunction
+" }}}
+
 function! vide#JumpOrKey(direction) " {{{
   if a:direction > 0
     let g:ulti_jump_forwards_res  = 0
@@ -38,14 +49,10 @@ function! vide#JumpOrKey(direction) " {{{
     if g:ulti_jump_forwards_res > 0
       return ''
     else
-      let c_col = col('.')
-      let n_char = getline('.')[c_col-1]
-      for jump_c in g:vide_jump_chars
-        if n_char == jump_c
-          call cursor(0, c_col+1)
-          return ""
-        endif
-      endfor
+      if s:CharInJumpChars(0)
+        call cursor(0, col('.')+1)
+        return ""
+      endif
       call feedkeys("\<Plug>VideMoveForwardsKey")
       return ""
     endif
@@ -55,14 +62,10 @@ function! vide#JumpOrKey(direction) " {{{
     if g:ulti_jump_backwards_res > 0
       return ''
     else
-      let c_col = col('.')
-      let n_char = getline('.')[c_col-2]
-      for jump_c in g:vide_jump_chars
-        if n_char == jump_c
-          call cursor(0, c_col-1)
-          return ""
-        endif
-      endfor
+      if s:CharInJumpChars(-1)
+        call cursor(0, col('.')-1)
+        return ""
+      endif
       call feedkeys("\<Plug>VideMoveBackwardsKey")
       return ""
     endif
