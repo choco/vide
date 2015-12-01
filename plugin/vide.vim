@@ -1,9 +1,8 @@
-let g:ycm_key_list_select_completion = ['<C-n>']
-let g:ycm_key_list_previous_completion = ['<C-p>']
-let g:UltiSnipsJumpForwardTrigger  = '\<Nop>'
-let g:UltiSnipsJumpBackwardTrigger = '\<Nop>'
-let g:UltiSnipsExpandTrigger       = '\<Nop>'
-let g:UltiSnipsUsePythonVersion = 2
+if exists('g:loaded_vide_plugin')
+  finish
+endif
+let g:loaded_vide_plugin = 1
+call vide#initialSetup()
 
 if !exists('g:vide_move_forwards')
   let g:vide_move_forwards  = "<tab>"
@@ -11,23 +10,22 @@ endif
 if !exists('g:vide_move_backwards')
   let g:vide_move_backwards  = "<s-tab>"
 endif
+exec 'inoremap <Plug>VideMoveForwardsKey ' . g:vide_move_forwards
+exec 'inoremap <Plug>VideMoveBackwardsKey ' . g:vide_move_backwards
 if !exists('g:vide_jump_chars')
   let g:vide_jump_chars = [')', ']', '"', "'"]
 endif
 
 " Hack: don't pop completion pop-up after confirming result {{{
-augroup modify_ctrl_y_trigger_ycm
-  autocmd!
-  au BufEnter * exec "inoremap <expr><silent> <M-NP> vide#DisablePopup()"
-  au BufEnter * exec "inoremap <expr><silent> <M-PN> vide#EnablePopup()"
-augroup END
+exec "inoremap <expr><silent> <Plug>VideDisablePopup vide#DisablePopup()"
+exec "inoremap <expr><silent> <Plug>VideEnablePopup vide#EnablePopup()"
 " }}}
 
 " Mappings {{{
 inoremap <silent><CR> <C-R>=vide#ExpandSnippetOrReturn()<CR>
 
-exec 'inoremap <silent> <expr> ' . vide_move_forwards . ' pumvisible() ? "\' . ycm_key_list_select_completion[0] . '" : "<C-R>=vide#JumpOrKey(1)<CR>"'
-exec 'inoremap <silent> <expr> ' . vide_move_backwards . ' pumvisible() ? "\' . ycm_key_list_previous_completion[0] . '" : "<C-R>=vide#JumpOrKey(0)<CR>"'
+exec 'imap <silent> <expr> ' . vide_move_forwards . ' pumvisible() ? "\' . ycm_key_list_select_completion[0] . '" : "<C-R>=vide#JumpOrKey(1)<CR>"'
+exec 'imap <silent> <expr> ' . vide_move_backwards . ' pumvisible() ? "\' . ycm_key_list_previous_completion[0] . '" : "<C-R>=vide#JumpOrKey(0)<CR>"'
 exec 'snoremap <silent> ' . vide_move_forwards . ' <Esc>:call UltiSnips#JumpForwards()<cr>'
 exec 'snoremap <silent> ' . vide_move_backwards . ' <Esc>:call UltiSnips#JumpBackwards()<cr>'
 " }}}

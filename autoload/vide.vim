@@ -1,26 +1,37 @@
-function vide#finishSetup()
+if exists("g:autoloaded_vide_plugin")
+  finish
+endif
+let g:autoloaded_vide_plugin = 1
+
+function! vide#initialSetup()
+  " setup YouComplete and Ultisnips options for interoperability
+  let g:ycm_key_list_select_completion = ['<C-n>']
+  let g:ycm_key_list_previous_completion = ['<C-p>']
+  let g:UltiSnipsJumpForwardTrigger  = '\<Nop>'
+  let g:UltiSnipsJumpBackwardTrigger = '\<Nop>'
+  let g:UltiSnipsExpandTrigger       = '\<Nop>'
+  let g:UltiSnipsUsePythonVersion = 2
+endfunction
+
+
+function! vide#finishSetup()
   let s:available_on_the_fly_snippet = 0
   let s:temporary_on_the_fly_snippet = ""
   let s:completedone_available_snippet = 0
   let s:completedone_snippet = ""
   let s:invalidate_snippet_counter = 0
-
-  exec 'let s:escaped_vide_move_forwards = "\'.g:vide_move_forwards.'"'
-  exec 'let s:escaped_vide_move_backwards = "\'.g:vide_move_backwards.'"'
 endfunction
 
-function vide#DisablePopup()
+function! vide#DisablePopup()
   let g:ycm_auto_trigger = 0
   return ""
-endfun
-
-function vide#EnablePopup()
+endfunction
+function! vide#EnablePopup()
   let g:ycm_auto_trigger = 1
   return ""
-endfun
+endfunction
 
-" func JumpOrKey(direction) {{{
-function vide#JumpOrKey(direction)
+function! vide#JumpOrKey(direction) " {{{
   if a:direction > 0
     let g:ulti_jump_forwards_res  = 0
     call UltiSnips#JumpForwards()
@@ -35,7 +46,8 @@ function vide#JumpOrKey(direction)
           return ""
         endif
       endfor
-      return s:escaped_vide_move_forwards
+      call feedkeys("\<Plug>VideMoveForwardsKey")
+      return ""
     endif
   else
     let g:ulti_jump_backwards_res = 0
@@ -51,13 +63,14 @@ function vide#JumpOrKey(direction)
           return ""
         endif
       endfor
-      return s:escaped_vide_move_backwards
+      call feedkeys("\<Plug>VideMoveBackwardsKey")
+      return ""
     endif
   endif
 endfunction
 " }}}
 
-function vide#ExpandSnippetOrReturn() " {{{
+function! vide#ExpandSnippetOrReturn() " {{{
   if pumvisible()
     let g:ulti_expand_or_jump_res = 0
     let snippet = UltiSnips#ExpandSnippetOrJump()
@@ -69,9 +82,7 @@ function vide#ExpandSnippetOrReturn() " {{{
       if len(s:temporary_on_the_fly_snippet)>1
         let s:available_on_the_fly_snippet = 1
       endif
-      call feedkeys("\<M-NP>")
-      call feedkeys("\<C-Y>")
-      call feedkeys("\<M-PN>")
+      call feedkeys("\<Plug>VideDisablePopup"."\<C-Y>"."\<Plug>VideEnablePopup")
       if s:available_on_the_fly_snippet > 0
         call UltiSnips#Anon(s:temporary_on_the_fly_snippet)
         let s:available_on_the_fly_snippet = 0
@@ -93,10 +104,10 @@ function vide#ExpandSnippetOrReturn() " {{{
 endfunction
 " }}}
 
-" create a snippet with Ultisnips for completed function names
-" NOTE: only works with function declaration like some_fun(arg1, args2, ...)
+" create a snippet with Ultisnips for completed function! names
+" NOTE: only works with function! declaration like some_fun(arg1, args2, ...)
 "       and objc functions
-function s:GenerateClikeFuncSnippet(base, with_starting_bracket, with_ending_bracket) " {{{
+function! s:GenerateClikeFuncSnippet(base, with_starting_bracket, with_ending_bracket) " {{{
   let base = a:base
   let startIdx = match(base, "(")
   let endIdx = match(base, ")")
@@ -130,7 +141,7 @@ function s:GenerateClikeFuncSnippet(base, with_starting_bracket, with_ending_bra
 endfunction
 " }}}
 
-function s:GenerateObjCSnippet() " {{{
+function! s:GenerateObjCSnippet() " {{{
   let abbr = v:completed_item.abbr
   let hasArguments = match(abbr, ":")
   if hasArguments > 0
@@ -158,7 +169,7 @@ function s:GenerateObjCSnippet() " {{{
 endfunction
 " }}}
 
-function s:GenerateSnippet(from_completeDone) "{{{
+function! s:GenerateSnippet(from_completeDone) "{{{
   if !exists('v:completed_item') || empty(v:completed_item)
     return ""
   endif
@@ -188,8 +199,8 @@ function s:GenerateSnippet(from_completeDone) "{{{
 endfunction
 " }}}
 
-" helper functions to invalidate compledone snippet {{{
-function s:InvalidateSnippet()
+" helper functions to invalidate compledone snippet
+function! s:InvalidateSnippet() " {{{
   let s:completedone_available_snippet = 0
   let s:invalidate_snippet_counter = 0
   try
@@ -197,7 +208,7 @@ function s:InvalidateSnippet()
   catch /^Vim\%((\a\+)\)\=:E367/
   endtry
 endfunction
-function s:CheckInvalidateSnippet()
+function! s:CheckInvalidateSnippet()
   if s:invalidate_snippet_counter > 0
     call s:InvalidateSnippet()
   else
@@ -206,7 +217,7 @@ function s:CheckInvalidateSnippet()
 endfunction
 " }}}
 
-function vide#GenerateCompleteDoneSnippet() " {{{
+function! vide#GenerateCompleteDoneSnippet() " {{{
   let s:completedone_available_snippet = 0
   let s:completedone_snippet = s:GenerateSnippet(1)
   if len(s:completedone_snippet) > 1
