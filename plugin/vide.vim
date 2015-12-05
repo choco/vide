@@ -4,6 +4,9 @@ endif
 let g:loaded_vide_plugin = 1
 call vide#initialSetup()
 
+if !exists('g:vide_confirm_selection')
+  let g:vide_confirm_selection  = "<cr>"
+endif
 if !exists('g:vide_move_forwards')
   let g:vide_move_forwards  = "<tab>"
 endif
@@ -22,7 +25,6 @@ exec "inoremap <expr><silent> <Plug>VideEnablePopup vide#EnablePopup()"
 " }}}
 
 " Mappings {{{
-inoremap <silent><CR> <C-R>=vide#ExpandSnippetOrReturn()<CR>
 
 exec 'imap <silent> <expr> ' . vide_move_forwards . ' pumvisible() ? "\' . ycm_key_list_select_completion[0] . '" : "<C-R>=vide#JumpOrKey(1)<CR>"'
 exec 'imap <silent> <expr> ' . vide_move_backwards . ' pumvisible() ? "\' . ycm_key_list_previous_completion[0] . '" : "<C-R>=vide#JumpOrKey(0)<CR>"'

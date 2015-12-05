@@ -13,6 +13,14 @@ function! vide#initialSetup()
   let g:UltiSnipsUsePythonVersion = 2
 endfunction
 
+function! s:finalMappings()
+  let original_map = maparg(g:vide_confirm_selection, 'i')
+  if empty(original_map)
+    let original_map = g:vide_confirm_selection
+  endif
+  let s:split_confirm_mappings = split(original_map, '\ze<Plug>')
+  exec "inoremap <silent>".g:vide_confirm_selection." <C-R>=vide#ExpandSnippetOrReturn()<CR>"
+endfunction
 
 function! vide#finishSetup()
   let s:available_on_the_fly_snippet = 0
@@ -20,6 +28,9 @@ function! vide#finishSetup()
   let s:completedone_available_snippet = 0
   let s:completedone_snippet = ""
   let s:invalidate_snippet_counter = 0
+  " need to call at VimEnter because exec mappings aren't updated when calling
+  " maparg like they weren't mapped
+  au VimEnter * call s:finalMappings()
 endfunction
 
 function! vide#DisablePopup()
@@ -100,7 +111,16 @@ function! vide#ExpandSnippetOrReturn() " {{{
       let s:available_on_the_fly_snippet = 0
       return ""
     else
-      call feedkeys("\<Plug>delimitMateCR"."\<Plug>DiscretionaryEnd")
+      " We need this horrible hack because the mapping could include the
+      " original mapping causing an infine loop, so we remap just the
+      " <Plug> mappings
+      for i in s:split_confirm_mappings
+        if i =~ '<Plug>\w'
+          call feedkeys(eval('"'.substitute(i, '<', '\\&', 'g').'"'))
+        else
+          call feedkeys(eval('"'.substitute(i, '<', '\\&', 'g').'"'), 'n')
+        endif
+      endfor
       return ""
     endif
   endif
