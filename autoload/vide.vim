@@ -10,7 +10,6 @@ function! vide#initialSetup()
   let g:UltiSnipsJumpForwardTrigger  = '\<Nop>'
   let g:UltiSnipsJumpBackwardTrigger = '\<Nop>'
   let g:UltiSnipsExpandTrigger       = '\<Nop>'
-  let g:UltiSnipsUsePythonVersion = 2
 endfunction
 
 function! s:finalMappings()

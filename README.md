@@ -1,5 +1,5 @@
-#「 Vide - IDE-like configuration for VIM 」
-####NOTE: REALLY HACKY, PROBABLY WRONG, BUT WORKS FOR ME
+# 「 Vide - IDE-like configuration for VIM 」
+#### NOTE: REALLY HACKY, PROBABLY WRONG, BUT WORKS FOR ME
 
 ##### Requirements:
 
